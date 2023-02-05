@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jang.cap.mapper.HReviewMapper">
+
+<select id="getHreviewList" resultType="HReviewVO" > 
+    SELECT rno,hno,content,name,userid,to_char(regdate,'YYYY-MM-DD HH24:MI') regDate,title,username
+      FROM cap_review
+     WHERE hno = #{hno} and del_yn='n'
+</select>
+
+
+<select id="getReview" resultType="HReviewVO">
+   SELECT  rno, hno, content, name, regdate,userid,title,username
+   FROM   cap_review
+    WHERE  rno = #{rno}
+</select>
+
+<insert id="writeReview" keyProperty="rno">
+   <selectKey keyProperty="rno" resultType="int" order="BEFORE">  
+       SELECT COALESCE(MAX(rno), 0) + 1 AS rno  
+       FROM   cap_review
+   </selectKey>
+ 
+   INSERT INTO cap_review ( rno, hno, content, userid,name,username,title )  
+   VALUES ( #{rno}, #{hno}, #{content}, #{userid},#{name} ,#{username},#{title})
+</insert>
+
+<update id="updateReview">
+   UPDATE  cap_review
+      SET  content = #{content}, userid = #{userid}, regDate = #{regDate} 
+    WHERE  rno  = #{rno}
+</update>
+
+<update id="deleteReview">
+     UPDATE cap_review
+        SET del_yn='y' 
+      WHERE rno = #{rno}
+</update >
+</mapper>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jang.cap.mapper.QnaMapper">
+	
+<insert id="writeQna" keyProperty="qnano">
+    <selectKey keyProperty="qnano" resultType="int" order="BEFORE">  
+        SELECT COALESCE(MAX(qnano), 0) + 1 AS qnano  
+        FROM   cap_qna
+    </selectKey>
+ 
+    INSERT INTO cap_qna (qnano, title, content, kind,userId) 
+    VALUES ( #{qnano}, #{title}, #{content}, #{kind}, #{userId} )
+        
+</insert>
+
+<update id="updateQna">
+        UPDATE  cap_qna
+        SET  title =  #{title}, content = #{content}, userId = #{userId}
+        WHERE  qnano  = #{qnano}
+    </update>
+     
+    
+        
+</mapper>

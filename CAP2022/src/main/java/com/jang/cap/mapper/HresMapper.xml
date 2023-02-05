@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jang.cap.mapper.HresMapper">
+
+
+	 <select id="getHresList" parameterType="SearchVO" resultType="HresVO" > 
+		  
+		  
+		   SELECT rnum,rsno, hno, total,num, name, userid, resdate, username, price
+		   FROM   (  SELECT ROWNUM AS rnum, a.* 
+		           FROM   ( SELECT * FROM   cap_hresboard  WHERE  del_yn='n'     
+		          
+		   <if test="keyword != null">
+	       <choose>  
+	          <when test="type == 'title'"> AND title like '%'||#{keyword}||'%' </when>
+	          <when test="type == 'userid'">AND userid  like '%'||#{keyword}||'%' </when>
+	          
+	          <when test="type == 'content'"> AND content  like '%'||#{keyword}||'%' </when>
+	       </choose>
+	       </if> 
+	       order by rsno desc  ) a  
+		         ) 
+		   WHERE  rnum  between #{startRow} and #{endRow}    
+	       
+  </select>
+  
+<insert id="writeArticle" keyProperty="rsno">
+    <selectKey keyProperty="rsno" resultType="int" order="BEFORE">  
+        SELECT COALESCE(MAX(rsno), 0) + 1 AS rsno   FROM   cap_hresboard
+    </selectKey>
+ 
+    INSERT INTO cap_hresboard (rsno, hno, total,num, name, userid, resdate, username, price) 
+    VALUES ( #{rsno}, #{hno}, #{total}, #{num},#{name},#{userid},#{resdate},#{username},#{price} )
+        
+</insert>
+
+<select id="getArticle"  resultType="HresVO">
+       SELECT   rsno,name,price,total,num
+        FROM    cap_hresboard
+        WHERE   rsno = #{rsno} 
+    </select>
+    
+     <select id="getTotalRow" parameterType="SearchVO"  resultType="int">
+	       SELECT count(*) AS totalrow 
+	       FROM  cap_half  
+	       WHERE del_yn='n' 
+       
+
+</select>
+<delete id="deleteArticle">
+	       DELETE  FROM  cap_hresboard
+	       WHERE rsno = #{rsno}
+    </delete>
+</mapper>
+

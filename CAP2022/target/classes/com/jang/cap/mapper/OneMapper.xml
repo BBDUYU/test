@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jang.cap.mapper.OneMapper">
+
+	<select id="getArticle"  resultType="OneVO">
+       SELECT   ono,name,price,time1,time2,place1,place2,detail1,detail2,cancel,img1,img2,picture,content
+        FROM    cap_one
+        WHERE   ono = #{ono} 
+    </select>
+    
+	<insert id="writeArticle" keyProperty="ono">
+    <selectKey keyProperty="ono" resultType="int" order="BEFORE">  
+        SELECT COALESCE(MAX(ono), 0) + 1 AS ono   FROM   cap_one
+    </selectKey>
+ 
+    INSERT INTO cap_one (ono, name, price, time1, time2, place1, place2, detail1, detail2, cancel, img1, img2,picture,content) 
+    VALUES ( #{ono}, #{name}, #{price}, #{time1},#{time2},#{place1}, #{place2},#{detail1},#{detail2}, #{cancel}, #{img1,jdbcType=VARCHAR}, #{img2,jdbcType=VARCHAR},#{picture,jdbcType=VARCHAR},#{content} )
+        
+</insert>
+	 <select id="getOneList"  parameterType="SearchVO" resultType="OneVO" > 
+		  
+		  
+		   SELECT * FROM   cap_one  WHERE  del_yn='n' order by ono desc     
+	       
+  </select>
+  
+  <select id="getTotalRow" parameterType="SearchVO"  resultType="int">
+	       SELECT count(*) AS totalrow 
+	       FROM  cap_one  
+	       WHERE del_yn='n' 
+       
+
+</select>
+</mapper>
+
+ 

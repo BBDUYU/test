@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jang.cap.mapper.WishMapper">
+	 <select id="getWishList"  parameterType="SearchVO" resultType="WishVO" > 
+		  
+		  
+	SELECT *  
+	FROM  (  SELECT ROWNUM AS rnum, a.* 
+		           FROM   ( SELECT * FROM   cap_wish  WHERE  wish_yn='y'     
+	
+	   <if test="keyword != null">
+	       <choose>  
+	          <when test="type == 'title'"> AND title like '%'||#{keyword}||'%' </when>
+	          <when test="type == 'userid'">AND userid  like '%'||#{keyword}||'%' </when>
+	          
+	          <when test="type == 'content'"> AND content  like '%'||#{keyword}||'%' </when>
+	       </choose>
+	       </if>  
+	        order by wno desc  ) a  
+		         ) 
+		      WHERE rnum  between #{startRow} and #{endRow}    
+  </select>
+ 
+<update id="incGoodCnt">
+    UPDATE  cap_wish
+    SET     recommendcnt=recommendcnt+1
+    WHERE   wno  = #{wno}
+</update>
+
+
+
+<delete id="deleteGoodCnt">
+	       DELETE  FROM  cap_wish
+	       WHERE wno = #{wno}
+    </delete>
+
+
+<insert id="addWishLike" keyProperty="wno">
+    <selectKey keyProperty="wno" resultType="int" order="BEFORE">  
+        SELECT COALESCE(MAX(wno), 0) + 1 AS wno  
+        FROM   cap_wish
+        
+    </selectKey>
+ 
+    INSERT INTO cap_wish (hno, wno, userid,img1,name,price)
+    VALUES (  #{hno}, #{wno}, #{userid}, #{img1}, #{name}, #{price})
+</insert>
+
+<select id="getWishLike" resultType="int">
+    SELECT COALESCE(MAX(wno), 0) AS wno
+    FROM   cap_wish
+    WHERE  userid = #{userid} AND hno = #{hno}  
+</select>
+<select id="getArticle" resultType="WishVO">                                       
+       SELECT  wno , hno, userid, img1,name,price            
+        FROM   cap_wish
+        WHERE  wno = #{wno}
+     </select>
+     <select id="getTotalRow" parameterType="SearchVO"  resultType="int">
+	       SELECT count(*) AS totalrow 
+	       FROM  cap_wish  
+	       WHERE wish_yn='y' 
+      
+
+</select>
+</mapper>
+	

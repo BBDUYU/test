@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jang.cap.mapper.BoardMapper">
+	
+	
+ <insert id="writeArticle" keyProperty="bno">
+    <selectKey keyProperty="bno" resultType="int" order="BEFORE">  
+       
+           SELECT COALESCE(MAX(bno), 0) + 1 AS bno   FROM   cap_board
+    </selectKey>
+		 
+		    INSERT INTO cap_board (bno, title, content, writerId) 
+		    VALUES ( #{bno}, #{title}, #{content}, #{writerId} )
+		        
+</insert>
+
+    <update id="updateArticle">
+	        UPDATE  cap_board
+	        SET  title =  #{title}, content = #{content}, writerId = #{writerId}
+	        WHERE  bno  = #{bno}
+    </update>
+    
+    <update id="deleteArticle">
+	        UPDATE  cap_board
+	        SET  del_yn='y'    
+	        WHERE  bno = #{bno}
+    </update >
+    
+    
+       <insert id="insertFile" keyProperty="fno">
+   <selectKey keyProperty="fno" resultType="int" order="BEFORE">  
+	       SELECT COALESCE(MAX(fno), 0) + 1 AS fno  
+	       FROM   cap_file
+   </selectKey>
+   
+	       INSERT INTO cap_file (fno, bno, ofilename, sfilename, filesize )
+ 	       VALUES ( #{fno}, #{bno}, #{ofilename}, #{sfilename}, #{filesize})
+  </insert>
+    
+     <select id="getArticle" resultType="BoardVO">                                       
+       SELECT  bno , title, content, writerId, to_char(regDate, 'YYYY-MM-DD HH24:MI') regDate,
+               replycnt
+        FROM   cap_board
+        WHERE  bno = #{bno}
+     </select>
+ 
+ <update id="incrementReplyCnt">
+	        UPDATE  cap_board
+	        SET     replycnt = replycnt + 1
+	        WHERE   bno  = #{bno}
+    </update>
+ 
+   <select id="getFileList" resultType="AttFileVO" > 
+        SELECT  fno, bno, ofilename, sfilename, filesize
+        FROM   cap_file
+        WHERE  bno = #{bno} 
+  </select>
+ 
+  <select id="getFileName" resultType="String" > 
+        SELECT  ofilename
+        FROM   cap_file
+        WHERE  fno = #{fno} 
+    </select>
+    
+     <delete id="deleteFile">
+	       DELETE  FROM  cap_file
+	       WHERE fno = #{fno}
+    </delete>
+    
+    <delete id="deleteFileBybno">
+        DELETE  FROM  cap_file
+        WHERE bno = #{bno}
+    </delete>
+    
+    <select id="getReplyList" resultType="ReplyVO">
+	   SELECT  rno, bno, content,  multicnt, to_char(regdate, 'YYYY-MM-DD HH24:MI')regDate, writerId
+	   FROM cap_reply
+	   WHERE bno = #{bno} and del_yn='n'                                               
+    </select>
+        
+    <select id="getReply" resultType="ReplyVO">
+	    SELECT  rno, bno, content, writerID,regDate FROM cap_reply
+	    WHERE rno = #{rno}
+     </select>
+     
+     <insert id="writeReply" keyProperty="rno">
+    <selectKey keyProperty="rno" resultType = "int" order="BEFORE">
+	    SELECT  COALESCE(MAX(rno),0)+1 AS rno
+	    FROM cap_reply
+   </selectKey>
+	     INSERT INTO cap_reply(rno,bno,content,writerId)
+	     VALUES(#{rno},#{bno},#{content},#{writerId})
+      </insert>
+      
+         <update id="updateReply">
+        UPDATE  bbs_reply
+        SET   content = #{content}, writerId = #{writerId}, regDate= #{regDate}
+        WHERE   rno  = #{rno}
+    </update>
+    
+      <update id="deleteReply">
+		  UPDATE cap_reply
+	      SET del_yn='y' 
+          WHERE rno = #{rno}
+    </update >
+    
+    <update id="deleteReplyBybno">
+	     UPDATE  cap_reply
+	     SET del_yn='y' 
+	     WHERE bno = #{bno}
+  </update >
+    
+    <select id="getBoardList"  parameterType="SearchVO" resultType="BoardVO" > 
+		  
+		   SELECT  rnum, bno, title, writerid, replycnt, to_char(regdate, 'YYYY-MM-DD HH24:MI')                                                     
+		          regdate 
+		   FROM  (  SELECT ROWNUM AS rnum, a.* 
+		           FROM   ( SELECT * FROM   cap_board  WHERE  del_yn='n'     
+		          
+	       <if test="keyword != null">
+	       <choose>  
+	          <when test="type == 'title'"> AND title like '%'||#{keyword}||'%' </when>
+	          <when test="type == 'writerId'">AND writerId = #{keyword} </when>
+	          <when test="type == 'content'"> AND content  like '%'||#{keyword}||'%' </when>
+	       </choose>
+	       </if> 
+		            order by bno desc  ) a  
+		         ) 
+		      WHERE rnum  between #{startRow} and #{endRow} 
+      
+  </select>
+
+     <select id="getTotalRow" parameterType="SearchVO"  resultType="int">
+	       SELECT count(*) AS totalrow 
+	       FROM  cap_board  
+	       WHERE del_yn='n' 
+       <if test="keyword != null">
+       <choose>  
+            <when test="type == 'title'">AND title like '%'||#{keyword}||'%' </when>
+            <when test="type == 'writerId'">AND writerId  like '%'||#{keyword}||'%' </when>
+            <when test="type == 'content'">AND content  like '%'||#{keyword}||'%' </when>
+           </choose>
+        </if>       
+
+</select>
+</mapper>
+

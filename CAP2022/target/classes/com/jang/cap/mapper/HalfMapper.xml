@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jang.cap.mapper.HalfMapper">
+
+	<select id="getArticle"  resultType="HalfVO">
+       SELECT   hno,name,price,time,place,cancel,img1,img2,picture,content
+        FROM    cap_half
+        WHERE   hno = #{hno} 
+    </select>
+    
+	<insert id="writeArticle" keyProperty="hno">
+    <selectKey keyProperty="hno" resultType="int" order="BEFORE">  
+        SELECT COALESCE(MAX(hno), 0) + 1 AS hno   FROM   cap_half
+    </selectKey>
+ 
+    INSERT INTO cap_half (hno, name, price, time, place, cancel, img1, img2,picture,content) 
+    VALUES ( #{hno}, #{name}, #{price}, #{time}, #{place}, #{cancel}, #{img1,jdbcType=VARCHAR}, #{img2,jdbcType=VARCHAR},#{picture,jdbcType=VARCHAR},#{content} )
+        
+</insert>
+	 <select id="getHalfList"  parameterType="SearchVO" resultType="HalfVO" > 
+		  
+		  
+		   SELECT * FROM   cap_half  WHERE  del_yn='n' order by hno desc     
+	       
+  </select>
+  
+  <select id="getTotalRow" parameterType="SearchVO"  resultType="int">
+	       SELECT count(*) AS totalrow 
+	       FROM  cap_half  
+	       WHERE del_yn='n' 
+       
+
+</select>
+</mapper>
+

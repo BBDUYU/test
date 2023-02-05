@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jang.cap.mapper.OReviewMapper">
+
+<select id="getOreviewList" resultType="OReviewVO" > 
+    SELECT orno,ono,content,name,userid,to_char(regdate,'YYYY-MM-DD HH24:MI') regDate,title,username
+      FROM cap_oreview
+     WHERE ono = #{ono} and del_yn='n'
+</select>
+
+
+<select id="getReview" resultType="OReviewVO">
+   SELECT  orno, ono, content, name, regdate,userid,title,username
+   FROM   cap_oreview
+    WHERE  orno = #{orno}
+</select>
+
+<insert id="writeReview" keyProperty="orno">
+   <selectKey keyProperty="orno" resultType="int" order="BEFORE">  
+       SELECT COALESCE(MAX(orno), 0) + 1 AS orno  
+       FROM   cap_oreview
+   </selectKey>
+ 
+   INSERT INTO cap_oreview ( orno, ono, content, userid,name,username,title )  
+   VALUES ( #{orno}, #{ono}, #{content}, #{userid},#{name} ,#{username},#{title})
+</insert>
+
+<update id="updateReview">
+   UPDATE  cap_oreview
+      SET  content = #{content}, userid = #{userid}, regDate = #{regDate} 
+    WHERE  orno  = #{orno}
+</update>
+
+<update id="deleteReview">
+     UPDATE cap_oreview
+        SET del_yn='y' 
+      WHERE orno = #{orno}
+</update >
+</mapper>
